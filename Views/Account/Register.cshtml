@@ -1,0 +1,34 @@
+@model MemberMessageBoard.ViewModels.RegisterViewModel
+
+<form asp-action="Register" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <label>Email</label>
+    <input asp-for="Email" />
+    <span asp-validation-for="Email" class="text-danger"></span>
+
+    <label>Password</label>
+    <input asp-for="Password" />
+    <span asp-validation-for="Password" class="text-danger"></span>
+
+    <label>ConFirmPassword</label>
+    <input asp-for="ConFirmPassword" />
+    <span asp-validation-for="ConFirmPassword" class="text-danger"></span>
+
+    <label>Nickname</label>
+    <input asp-for="Nickname" />
+    <span asp-validation-for="Nickname" class="text-danger"></span>
+
+
+    <button type="submit" >註冊</button>
+</form>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

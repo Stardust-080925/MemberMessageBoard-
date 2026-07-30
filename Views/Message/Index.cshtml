@@ -1,0 +1,131 @@
+@using MemberMessageBoard.ViewModels
+@using System.Security.Claims
+@model MessageSearchViewModel
+@{
+    ViewData["Title"] = "留言列表";
+}
+
+
+@if (Model.Messages.Any())
+{
+    <p>共找到 @Model.Messages.Count 筆留言。</p>
+    @foreach (var msg in Model.Messages)
+    {
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>@msg.Title</h5>
+                <p>@msg.Content</p>
+                <small>作者：@msg.User.Nickname</small>&emsp;
+                @*如果這一行被判斷說@msg.User.Nickname是null，就代表messagecontroller裡的index沒有
+                var messages = await _context.Messages
+                .Include(m => m.User) // 🔥 關鍵：載入導覽屬性
+                .OrderByDescending(m => m.CreatedAt)
+                .ToListAsync();*@
+                <small>
+                    留言時間：<span class="createdTime" data-time="@msg.CreatedAt.ToString("o")"></span>
+                </small>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="alert alert-warning">
+        查無符合「@Model.Keyword」的留言資料。
+    </div>
+}
+
+<!--登入成功，會出現登入成功的彈跳視窗，如未關閉四秒過後會自動關閉彈跳視窗-->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="welcomeLabel">@TempData["Title"]</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @TempData["SuccessMessage"]
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<form method="get" class="mb-3">
+    <input type="text" name="keyword" value="@Model.Keyword" placeholder="搜尋留言..." />
+    <button type="submit">搜尋</button>
+    <a href="@Url.Action("Index", "Message")">清除</a>
+</form>
+
+@foreach (var msg in Model.Messages)
+{
+    <div class="card mb-3">
+        <div class="card-body">
+            <h5>@msg.Title</h5>
+            <p>@msg.Content</p>
+            @if (!string.IsNullOrEmpty(msg.ImagePath))
+            {
+                <img src="@msg.ImagePath" style="max-height:150px" />
+            }
+            <br>
+            <small>作者：@msg.User.Nickname</small>&emsp;
+            <small>
+                留言時間：<span class="createdTime" data-time="@msg.CreatedAt.ToString("o")"></span>
+            </small>
+            @* <p><strong>留言者 ID：</strong> @msg.UserId</p> *@
+            <br>
+            @* 只有自己留言的內容才能進行刪除和編輯，其他使用者只能瀏覽 *@
+            @if (@msg.UserId == User.FindFirstValue(ClaimTypes.NameIdentifier))
+            {
+                <form asp-controller="Message" asp-action="Delete" method="get" style="display:inline">
+                    <input type="hidden" name="id" value="@msg.Id" />
+                    <button type="submit" class="btn btn-danger" asp-area="" asp-controller="Message"
+                        asp-action="Delete">刪除</button>
+                </form>
+
+                <form asp-controller="Message" asp-action="Edit" method="get" style="display:inline">
+                    <input type="hidden" name="id" value="@msg.Id" />
+                    <button type="submit" class="btn btn-warning" asp-area="" asp-controller="Message"
+                        asp-action="Edit">編輯留言</button>
+                </form>
+            }
+            <form asp-controller="Message" asp-action="Detail" method="get" style="display:inline">
+                <input type="hidden" name="id" value="@msg.Id" />
+                <button type="submit" class="btn btn-primary" asp-area="" asp-controller="Message"
+                    asp-action="Detail">詳細內容</button>
+            </form>
+        </div>
+    </div>
+}
+
+
+<div>
+    @for (int i = 1; i <= Model.TotalPages; i++)
+    {
+        <a href="?keyword=@Model.Keyword&page=@i" class="@(Model.PageSize == i ? "fw-bold" : "")">@i</a>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        var successModal = new bootstrap.Modal(document.getElementById('successModal'));
+        successModal.show();
+
+        // 自動關閉（可選）
+        setTimeout(() => {
+            successModal.hide();
+        }, 4000);
+    </script>
+    <script>
+        document.querySelectorAll(".createdTime").forEach(span => {
+            const rawTime = span.dataset.time;
+            const localTime = new Date(rawTime).toLocaleString("zh-TW", {
+                timeZone: "Asia/Taipei"
+            });
+            span.textContent = localTime;
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+}

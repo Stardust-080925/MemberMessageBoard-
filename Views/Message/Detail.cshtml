@@ -1,0 +1,15 @@
+@using MemberMessageBoard.Models
+@model Message
+
+<div class="card" style="width: 35rem;">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Title</h5>
+        <h6 class="card-subtitle mb-2 text-muted">@Model.CreatedAt</h6>
+        <p class="card-text">@Model.Content</p>
+        <img src="@Model.ImagePath" style="max-height:350px" />
+    </div>
+</div>
+
+<form asp-action="Index" method="get">
+    <button type="submit" class="btn btn-light">回上一頁</button>
+</form>

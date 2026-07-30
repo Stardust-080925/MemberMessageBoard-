@@ -1,0 +1,54 @@
+@using MemberMessageBoard.ViewModels
+@model UploadFileViewModel
+
+@{
+    ViewData["Title"] = "編輯留言";
+}
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    @* 讓表單在送出時，保留這筆資料的主鍵 Id，讓 Controller 知道要更新哪一筆資料。 *@
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ExistingImagePath" />
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+
+    <div class="mb-3">
+        <label asp-for="Title" class="form-label"></label>
+        <input asp-for="Title" class="form-control" />
+        <span asp-validation-for="Title" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Content" class="form-label"></label>
+        <textarea asp-for="Content" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ExistingImagePath))
+    {
+        <div class="mb-3">
+            <label>目前圖片：</label><br />
+            <img src="@Model.ExistingImagePath" style="max-height:150px" alt="圖片預覽"/>
+        </div>
+        <div class="form-check mb-3">
+            <input class="form-check-input" asp-for="DeleteImage" type="checkbox" />
+            <label class="form-check-label" asp-for="DeleteImage">刪除這張圖片</label>
+        </div>
+    }
+
+    <div class="mb-3">
+        <label asp-for="FormFile" class="form-label"></label>
+        <input asp-for="FormFile" type="file" class="form-control" />
+        <span asp-validation-for="FormFile" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">更新</button>
+</form>
+<form asp-action="Index" method="get">
+    <button type="submit" class="btn btn-light">回上一頁</button>
+</form>
+
+@* 在 Razor 頁面中啟用 前端驗證功能，讓使用者在送出表單前就看到欄位錯誤提示。 *@
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

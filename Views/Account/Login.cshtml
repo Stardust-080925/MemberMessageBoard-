@@ -1,0 +1,43 @@
+@model MemberMessageBoard.ViewModels.LoginViewModel
+
+<form asp-action="Login" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <label>Email</label>
+    <input asp-for="Email" />
+    <span asp-validation-for="Email" class="text-danger"></span>
+
+    <label>Password</label>
+    <input asp-for="Password" />
+    <span asp-validation-for="Password"class="text-danger"></span>
+
+    <label>
+        <input type="checkbox" asp-for="Remember" />
+    </label>
+    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+    <button type="submit" >登入</button>
+</form>
+
+@* 不要記住密碼：為了安全性，建議只記住 Email。
+localStorage 是明文儲存，適合用來記住非敏感資訊（如帳號）。 *@
+<script>
+  // 頁面載入時自動填入 Email
+  window.onload = function () {
+    const savedEmail = localStorage.getItem("savedEmail");
+    if (savedEmail) {
+      document.getElementById("email").value = savedEmail;
+      document.getElementById("rememberEmail").checked = true;
+    }
+  };
+
+  // 表單送出時儲存或清除 Email
+  document.getElementById("loginForm").addEventListener("submit", function () {
+    const email = document.getElementById("email").value;
+    const remember = document.getElementById("rememberEmail").checked;
+    if (remember) {
+      localStorage.setItem("savedEmail", email);
+    } else {
+      localStorage.removeItem("savedEmail");
+    }
+  });
+</script>
